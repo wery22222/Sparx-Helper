@@ -38,7 +38,6 @@ void takeInput()
 {
 	std::string currentAns;
 	std::string currentCode;
-	int iterationNum = 0;
 	std::map<std::string, std::string> codesAndAnswers;
 	while (true)
 	{
@@ -46,7 +45,7 @@ void takeInput()
 		std::cin >> currentCode;
 		if ((currentCode == "Q" || currentCode == "q"))
 		{
-			return;
+			return ;
 		}
 		if ((currentCode == "O" || currentCode == "o"))
 		{
@@ -60,7 +59,7 @@ void takeInput()
 		}
 		if ((currentCode == "R" || currentCode == "r"))
 		{
-			readFile();
+			codesAndAnswers = readFile();
 			continue;
 		}
 		if (std::isblank(currentCode[0]))
@@ -76,7 +75,6 @@ void takeInput()
 			goto getAns;
 		}
 		codesAndAnswers[currentCode] = currentAns;
-		iterationNum++;
 	}
 }
 void writeToFile(std::map<std::string, std::string> input)
@@ -105,13 +103,17 @@ std::map<std::string, std::string> readFile()
 		inputFile.close();
 	}
 	std::stringstream ss(inputStr);
+	std::cout << inputStr<<"\n";
+
 	std::string item1;
 	int i = 0;
 	while (std::getline(ss, item1, ';')) {
+		std::cout << item1 <<'\n';
 		std::string code;
 		std::string item2;
-		int j = 0;
-		while (std::getline(ss, item2, ','))
+		int j  = 0;
+		std::stringstream sd(item1);
+		while (std::getline(sd, item2, ','))
 		{
 			if (j == 0)
 			{
@@ -123,5 +125,6 @@ std::map<std::string, std::string> readFile()
 		}
 		i++;
 	}
+	std::cout << i << '\n';
 	return inputMap;
 }
