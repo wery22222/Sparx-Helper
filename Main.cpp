@@ -3,10 +3,13 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
+void autoSave(std::map<std::string, std::string> input);
 void takeInput();
 void output(std::map<std::string, std::string> input);
-void writeToFile(std::map<std::string, std::string> input);
+void writeToFile(std::map<std::string, std::string> input, std::string fileName );
+bool isCode(std::string toCheck);
 std::map<std::string, std::string> readFile();
 int main()
 {
@@ -21,6 +24,7 @@ void output(std::map<std::string, std::string> input)
 	
 	std::string code;
 	std::cin >> code;
+	
 	for (std::map<std::string, std::string>::iterator it = input.begin(); it != input.end(); it++)
 	{
 		if (code == it->first)
@@ -45,6 +49,7 @@ void takeInput()
 		std::cin >> currentCode;
 		if ((currentCode == "Q" || currentCode == "q"))
 		{
+			autoSave(codesAndAnswers);
 			return ;
 		}
 		if ((currentCode == "O" || currentCode == "o"))
@@ -54,7 +59,7 @@ void takeInput()
 		}
 		if ((currentCode == "S" || currentCode == "s"))
 		{
-			writeToFile(codesAndAnswers);
+			writeToFile(codesAndAnswers, "codes.txt");
 			continue;
 		}
 		if ((currentCode == "R" || currentCode == "r"))
@@ -77,7 +82,7 @@ void takeInput()
 		codesAndAnswers[currentCode] = currentAns;
 	}
 }
-void writeToFile(std::map<std::string, std::string> input)
+void writeToFile(std::map<std::string, std::string> input, std::string fileName)
 {
 	std::stringstream ss;
 	std::string outputStr;
@@ -87,7 +92,7 @@ void writeToFile(std::map<std::string, std::string> input)
 		ss << it->first << "," << it->second << ";";
 	}
 	ss >> outputStr;
-	std::ofstream outputFile("codes.txt");
+	std::ofstream outputFile(fileName);
 	outputFile << outputStr;
 	outputFile.close();
 }
@@ -127,4 +132,20 @@ std::map<std::string, std::string> readFile()
 	}
 	std::cout << i << '\n';
 	return inputMap;
+}
+void autoSave(std::map<std::string, std::string> input)
+{
+	std::string codes [10];
+	std::map<std::string, std::string>::iterator it = input.end();
+	for (int i = 0; it != input.begin() && i<10; it--, i++)
+	{
+		if (!isCode(it->first))
+		{
+			writeToFile(input, "autoSave.txt");
+		}
+	}
+}
+bool isCode(std::string toCheck)
+{
+	return (toCheck == "Q" || toCheck == "q" || toCheck == "S" || toCheck == "s" || toCheck == "R" || toCheck == "r" || toCheck == "O" || toCheck == "o");
 }
