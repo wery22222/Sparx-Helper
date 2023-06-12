@@ -4,13 +4,15 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include "fileIO.hpp"
+//#include "MapVisualisation.hpp"
 
-void autoSave(std::map<std::string, std::string> input);
+void addToMap(std::map<std::string, std::string> &input, std::string first, std::string second);
+void autoSave(std::map<std::string, std::string>& input);
 void takeInput();
-void output(std::map<std::string, std::string> input);
-void writeToFile(std::map<std::string, std::string> input, std::string fileName );
-bool isCode(std::string toCheck);
-std::map<std::string, std::string> readFile();
+void output(std::map<std::string, std::string>& input);
+const std::string& mapToStr(std::map<std::string, std::string>& input);
+
 int main()
 {
 	takeInput();
@@ -18,37 +20,55 @@ int main()
 }
 
 
-void output(std::map<std::string, std::string> input)
+void output(std::map<std::string, std::string>& input)
 {
 	std::cout << "Enter the code: ";
 	
 	std::string code;
-	std::cin >> code;
-	
-	for (std::map<std::string, std::string>::iterator it = input.begin(); it != input.end(); it++)
-	{
-		if (code == it->first)
-		{
-			std::cout << "Answer is: " << it->second << "\n";
+	if(code.empty())
 
-			return;
-		}
+	getline(std::cin ,code);
+	while (input.find(code) == input.end()){
+		std::cout << "Code not found"<<std::endl<<"Please enter valid code: ";
+		getline(std::cin, code);
 	}
-	std::cout << "Code not found \n";
+	std::cout << "The answer is: " << input.at(code)<< std::endl;
+
 }
 
 
 void takeInput()
 {
+	std::vector<std::string> fileNames;
+	std::ifstream inputFile("storedFiles.log.gz");
+	std::string line;
+	while (getline(inputFile, line))
+		fileNames.push_back(line);
+	inputFile.close();
+	
+	//VisualWindow* drawing;
 	std::string currentAns;
 	std::string currentCode;
+	char* autoSaveFile = "autosave.txt";
 	std::map<std::string, std::string> codesAndAnswers;
+	file::readFile(codesAndAnswers, autoSaveFile);
 	while (true)
 	{
-		std::cout << "Type the code or Q to quit, O to get output, S to save or R to read (destroys saved codes do at start unless want to clear): ";
-		std::cin >> currentCode;
+		std::cout << "Type the code, Q to quit, O to get output, \nF to do File IO, C clear all codes stored: ";
+		getline(std::cin, currentCode);
+		if (currentCode.empty())
+			continue;
+		if ((currentCode == "C" || currentCode == "c"))
+		{
+			std::map<std::string, std::string> empty;
+			for (auto fileName:fileNames)
+				file::writeToFile(empty, fileName);
+			codesAndAnswers = empty;
+			return;
+		}
 		if ((currentCode == "Q" || currentCode == "q"))
 		{
+			file::writeToFile(fileNames);
 			autoSave(codesAndAnswers);
 			return ;
 		}
@@ -57,95 +77,45 @@ void takeInput()
 			output(codesAndAnswers);
 			continue;
 		}
-		if ((currentCode == "S" || currentCode == "s"))
+		if ((currentCode == "F" || currentCode == "f"))
 		{
-			writeToFile(codesAndAnswers, "codes.txt");
+			file::fileIO(codesAndAnswers);
 			continue;
 		}
-		if ((currentCode == "R" || currentCode == "r"))
-		{
-			codesAndAnswers = readFile();
+		/*if ((currentCode == "D" || currentCode == "d"))
+			drawing = new VisualWindow(&codesAndAnswers);
 			continue;
 		}
-		if (std::isblank(currentCode[0]))
+		*/
+		if (currentCode.empty())
 		{
-			std::cout << "\n";
+			std::cout << "Please enter something"<< std::endl;
 			continue;
 		}
 	getAns:
-		std::cout << "Enter the answer: ";
-		std::cin >> currentAns;
-		if (std::isblank(currentAns[0]))
-		{
+		std::cout << "Enter the answer:";
+		getline(std::cin, currentAns, '\n');
+		if (currentAns.empty())
 			goto getAns;
-		}
-		codesAndAnswers[currentCode] = currentAns;
+        codesAndAnswers[currentCode] = currentAns;
 	}
 }
-void writeToFile(std::map<std::string, std::string> input, std::string fileName)
-{
-	std::stringstream ss;
-	std::string outputStr;
-	std::map<std::string, std::string>::iterator it = input.begin();
-	for (; it != input.end(); it++)
-	{
-		ss << it->first << "," << it->second << ";";
-	}
-	ss >> outputStr;
-	std::ofstream outputFile(fileName);
-	outputFile << outputStr;
-	outputFile.close();
-}
-std::map<std::string, std::string> readFile()
-{
-	std::map<std::string, std::string> inputMap;
-	std::string inputStr;
-	std::ifstream inputFile("codes.txt");
-	if (inputFile.is_open())
-	{
-		// >> Reads the data
-		inputFile >> inputStr;
-		inputFile.close();
-	}
-	std::stringstream ss(inputStr);
-	std::cout << inputStr<<"\n";
 
-	std::string item1;
-	int i = 0;
-	while (std::getline(ss, item1, ';')) {
-		std::cout << item1 <<'\n';
-		std::string code;
-		std::string item2;
-		int j  = 0;
-		std::stringstream sd(item1);
-		while (std::getline(sd, item2, ','))
-		{
-			if (j == 0)
-			{
-				code = item2;
-				j++;
-				continue;
-			}
-			inputMap[code] = item2;
-		}
-		i++;
-	}
-	std::cout << i << '\n';
-	return inputMap;
-}
-void autoSave(std::map<std::string, std::string> input)
+
+void autoSave(std::map<std::string, std::string>& input)
 {
 	std::string codes [10];
 	std::map<std::string, std::string>::iterator it = input.end();
-	for (int i = 0; it != input.begin() && i<10; it--, i++)
+	char* autoSaveFile = "autosave.txt";
+	file::writeToFile(input, autoSaveFile);
+}
+/*
+const std::string& mapToStr(std::map<std::string, std::string>& input)
+{
+	std::stringstream ss;
+	for (auto& it:input)
 	{
-		if (!isCode(it->first))
-		{
-			writeToFile(input, "autoSave.txt");
-		}
+		ss<<"Code: " << it.first(nullptr) << " is "<< it.second(nullptr) << std::endl;
 	}
 }
-bool isCode(std::string toCheck)
-{
-	return (toCheck == "Q" || toCheck == "q" || toCheck == "S" || toCheck == "s" || toCheck == "R" || toCheck == "r" || toCheck == "O" || toCheck == "o");
-}
+*/
