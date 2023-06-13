@@ -29,15 +29,13 @@ void output(std::map<std::string, std::string>& input)
   
   if(code.empty())
   {
+  //Iterate Through all elements
   for (auto& it:input)
   {
-
+	//Print current element
     std::cout << "\n\tCode: " << it.first << " is "<< it.second << '\n';
-  
   }
-
   return;
-
   }
 
   while (input.find(code) == input.end()){

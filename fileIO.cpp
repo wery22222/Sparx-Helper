@@ -10,7 +10,7 @@ void file::fileIO(std::map<std::string, std::string>& codesAndAnswers)
 	inputFile.close();
 
 	//Prepare for inputting
-  line = nullptr;
+  line = "";
 
 	std::cout << "S to save or R to read";
 	std::string currentInstruction;
