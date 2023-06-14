@@ -1,24 +1,16 @@
-#include <iostream>
-#include <string>
-#include <map>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include "fileIO.hpp"
+#include "Main.hpp"
 //#include "MapVisualisation.hpp"
 
-void autoSave(std::map<std::string, std::string>& input);
-void takeInput();
-void output(std::map<std::string, std::string>& input);
-const std::string& mapToStr(std::map<std::string, std::string>& input);
+
+
 
 int main()
 {
-  takeInput();
-  return 0;
+  Main mainEngine = Main();
+  mainEngine.run();
 }
 
-
+/*
 void output(std::map<std::string, std::string>& input)
 {
   std::cout << "Enter the code: ";
@@ -62,6 +54,8 @@ void takeInput()
   char* autoSaveFile = "autosave.txt";
   std::map<std::string, std::string> codesAndAnswers;
   file::readFile(codesAndAnswers, autoSaveFile);
+
+  //Main loop
   while (true)
   {
     std::cout << "Type the code, Q to quit, O to get output, \nF to do File IO, C clear all codes stored: ";
@@ -96,7 +90,7 @@ void takeInput()
       drawing = new VisualWindow(&codesAndAnswers);
       continue;
     }
-    */
+    
     if (currentCode.empty())
     {
       std::cout << "Please enter something"<< std::endl;
@@ -127,3 +121,4 @@ const std::string& mapToStr(std::map<std::string, std::string>& input)
 
   return ss.str();
 }
+*/
